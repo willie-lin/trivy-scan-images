@@ -6,5 +6,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 )
 
+// Image is the predicate function for image builders.
+type Image func(*sql.Selector)
+
 // User is the predicate function for user builders.
 type User func(*sql.Selector)
