@@ -15,8 +15,40 @@ import (
 func init() {
 	userFields := schema.User{}.Fields()
 	_ = userFields
-	// userDescCreatedAt is the schema descriptor for created_at field.
-	userDescCreatedAt := userFields[3].Descriptor()
-	// user.DefaultCreatedAt holds the default value on creation for the created_at field.
-	user.DefaultCreatedAt = userDescCreatedAt.Default.(func() time.Time)
+	// userDescName is the schema descriptor for name field.
+	userDescName := userFields[0].Descriptor()
+	// user.DefaultName holds the default value on creation for the name field.
+	user.DefaultName = userDescName.Default.(string)
+	// user.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	user.NameValidator = userDescName.Validators[0].(func(string) error)
+	// userDescText is the schema descriptor for text field.
+	userDescText := userFields[1].Descriptor()
+	// user.DefaultText holds the default value on creation for the text field.
+	user.DefaultText = userDescText.Default.(string)
+	// user.TextValidator is a validator for the "text" field. It is called by the builders before save.
+	user.TextValidator = func() func(string) error {
+		validators := userDescText.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(text string) error {
+			for _, fn := range fns {
+				if err := fn(text); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// userDescCreated is the schema descriptor for created field.
+	userDescCreated := userFields[2].Descriptor()
+	// user.DefaultCreated holds the default value on creation for the created field.
+	user.DefaultCreated = userDescCreated.Default.(func() time.Time)
+	// userDescUpdated is the schema descriptor for updated field.
+	userDescUpdated := userFields[3].Descriptor()
+	// user.DefaultUpdated holds the default value on creation for the updated field.
+	user.DefaultUpdated = userDescUpdated.Default.(func() time.Time)
+	// user.UpdateDefaultUpdated holds the default value on update for the updated field.
+	user.UpdateDefaultUpdated = userDescUpdated.UpdateDefault.(func() time.Time)
 }

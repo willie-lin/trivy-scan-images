@@ -11,14 +11,14 @@ const (
 	Label = "user"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
-	// FieldAge holds the string denoting the age field in the database.
-	FieldAge = "age"
 	// FieldName holds the string denoting the name field in the database.
 	FieldName = "name"
-	// FieldUsername holds the string denoting the username field in the database.
-	FieldUsername = "username"
-	// FieldCreatedAt holds the string denoting the created_at field in the database.
-	FieldCreatedAt = "created_at"
+	// FieldText holds the string denoting the text field in the database.
+	FieldText = "text"
+	// FieldCreated holds the string denoting the created field in the database.
+	FieldCreated = "created"
+	// FieldUpdated holds the string denoting the updated field in the database.
+	FieldUpdated = "updated"
 	// Table holds the table name of the user in the database.
 	Table = "users"
 )
@@ -26,10 +26,10 @@ const (
 // Columns holds all SQL columns for user fields.
 var Columns = []string{
 	FieldID,
-	FieldAge,
 	FieldName,
-	FieldUsername,
-	FieldCreatedAt,
+	FieldText,
+	FieldCreated,
+	FieldUpdated,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -43,6 +43,18 @@ func ValidColumn(column string) bool {
 }
 
 var (
-	// DefaultCreatedAt holds the default value on creation for the "created_at" field.
-	DefaultCreatedAt func() time.Time
+	// DefaultName holds the default value on creation for the "name" field.
+	DefaultName string
+	// NameValidator is a validator for the "name" field. It is called by the builders before save.
+	NameValidator func(string) error
+	// DefaultText holds the default value on creation for the "text" field.
+	DefaultText string
+	// TextValidator is a validator for the "text" field. It is called by the builders before save.
+	TextValidator func(string) error
+	// DefaultCreated holds the default value on creation for the "created" field.
+	DefaultCreated func() time.Time
+	// DefaultUpdated holds the default value on creation for the "updated" field.
+	DefaultUpdated func() time.Time
+	// UpdateDefaultUpdated holds the default value on update for the "updated" field.
+	UpdateDefaultUpdated func() time.Time
 )

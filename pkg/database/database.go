@@ -30,7 +30,7 @@ func NewClient() (*ent.Client, error) {
 		DbName:   viper.GetString("database.dbname"),
 		Host:     viper.GetString("database.host"),
 		Port:     viper.GetInt("database.port"),
-		Type:     "mysql",
+		Type:     viper.GetString("database.type"),
 	}
 
 	var client *ent.Client

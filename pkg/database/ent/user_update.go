@@ -27,42 +27,37 @@ func (uu *UserUpdate) Where(ps ...predicate.User) *UserUpdate {
 	return uu
 }
 
-// SetAge sets the "age" field.
-func (uu *UserUpdate) SetAge(i int) *UserUpdate {
-	uu.mutation.ResetAge()
-	uu.mutation.SetAge(i)
-	return uu
-}
-
-// AddAge adds i to the "age" field.
-func (uu *UserUpdate) AddAge(i int) *UserUpdate {
-	uu.mutation.AddAge(i)
-	return uu
-}
-
 // SetName sets the "name" field.
 func (uu *UserUpdate) SetName(s string) *UserUpdate {
 	uu.mutation.SetName(s)
 	return uu
 }
 
-// SetUsername sets the "username" field.
-func (uu *UserUpdate) SetUsername(s string) *UserUpdate {
-	uu.mutation.SetUsername(s)
-	return uu
-}
-
-// SetCreatedAt sets the "created_at" field.
-func (uu *UserUpdate) SetCreatedAt(t time.Time) *UserUpdate {
-	uu.mutation.SetCreatedAt(t)
-	return uu
-}
-
-// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
-func (uu *UserUpdate) SetNillableCreatedAt(t *time.Time) *UserUpdate {
-	if t != nil {
-		uu.SetCreatedAt(*t)
+// SetNillableName sets the "name" field if the given value is not nil.
+func (uu *UserUpdate) SetNillableName(s *string) *UserUpdate {
+	if s != nil {
+		uu.SetName(*s)
 	}
+	return uu
+}
+
+// SetText sets the "text" field.
+func (uu *UserUpdate) SetText(s string) *UserUpdate {
+	uu.mutation.SetText(s)
+	return uu
+}
+
+// SetNillableText sets the "text" field if the given value is not nil.
+func (uu *UserUpdate) SetNillableText(s *string) *UserUpdate {
+	if s != nil {
+		uu.SetText(*s)
+	}
+	return uu
+}
+
+// SetUpdated sets the "updated" field.
+func (uu *UserUpdate) SetUpdated(t time.Time) *UserUpdate {
+	uu.mutation.SetUpdated(t)
 	return uu
 }
 
@@ -77,13 +72,20 @@ func (uu *UserUpdate) Save(ctx context.Context) (int, error) {
 		err      error
 		affected int
 	)
+	uu.defaults()
 	if len(uu.hooks) == 0 {
+		if err = uu.check(); err != nil {
+			return 0, err
+		}
 		affected, err = uu.sqlSave(ctx)
 	} else {
 		var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 			mutation, ok := m.(*UserMutation)
 			if !ok {
 				return nil, fmt.Errorf("unexpected mutation type %T", m)
+			}
+			if err = uu.check(); err != nil {
+				return 0, err
 			}
 			uu.mutation = mutation
 			affected, err = uu.sqlSave(ctx)
@@ -125,6 +127,29 @@ func (uu *UserUpdate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (uu *UserUpdate) defaults() {
+	if _, ok := uu.mutation.Updated(); !ok {
+		v := user.UpdateDefaultUpdated()
+		uu.mutation.SetUpdated(v)
+	}
+}
+
+// check runs all checks and user-defined validators on the builder.
+func (uu *UserUpdate) check() error {
+	if v, ok := uu.mutation.Name(); ok {
+		if err := user.NameValidator(v); err != nil {
+			return &ValidationError{Name: "name", err: fmt.Errorf("ent: validator failed for field \"name\": %w", err)}
+		}
+	}
+	if v, ok := uu.mutation.Text(); ok {
+		if err := user.TextValidator(v); err != nil {
+			return &ValidationError{Name: "text", err: fmt.Errorf("ent: validator failed for field \"text\": %w", err)}
+		}
+	}
+	return nil
+}
+
 func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	_spec := &sqlgraph.UpdateSpec{
 		Node: &sqlgraph.NodeSpec{
@@ -143,20 +168,6 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			}
 		}
 	}
-	if value, ok := uu.mutation.Age(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeInt,
-			Value:  value,
-			Column: user.FieldAge,
-		})
-	}
-	if value, ok := uu.mutation.AddedAge(); ok {
-		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
-			Type:   field.TypeInt,
-			Value:  value,
-			Column: user.FieldAge,
-		})
-	}
 	if value, ok := uu.mutation.Name(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
@@ -164,18 +175,18 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: user.FieldName,
 		})
 	}
-	if value, ok := uu.mutation.Username(); ok {
+	if value, ok := uu.mutation.Text(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
 			Value:  value,
-			Column: user.FieldUsername,
+			Column: user.FieldText,
 		})
 	}
-	if value, ok := uu.mutation.CreatedAt(); ok {
+	if value, ok := uu.mutation.Updated(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeTime,
 			Value:  value,
-			Column: user.FieldCreatedAt,
+			Column: user.FieldUpdated,
 		})
 	}
 	if n, err = sqlgraph.UpdateNodes(ctx, uu.driver, _spec); err != nil {
@@ -197,42 +208,37 @@ type UserUpdateOne struct {
 	mutation *UserMutation
 }
 
-// SetAge sets the "age" field.
-func (uuo *UserUpdateOne) SetAge(i int) *UserUpdateOne {
-	uuo.mutation.ResetAge()
-	uuo.mutation.SetAge(i)
-	return uuo
-}
-
-// AddAge adds i to the "age" field.
-func (uuo *UserUpdateOne) AddAge(i int) *UserUpdateOne {
-	uuo.mutation.AddAge(i)
-	return uuo
-}
-
 // SetName sets the "name" field.
 func (uuo *UserUpdateOne) SetName(s string) *UserUpdateOne {
 	uuo.mutation.SetName(s)
 	return uuo
 }
 
-// SetUsername sets the "username" field.
-func (uuo *UserUpdateOne) SetUsername(s string) *UserUpdateOne {
-	uuo.mutation.SetUsername(s)
-	return uuo
-}
-
-// SetCreatedAt sets the "created_at" field.
-func (uuo *UserUpdateOne) SetCreatedAt(t time.Time) *UserUpdateOne {
-	uuo.mutation.SetCreatedAt(t)
-	return uuo
-}
-
-// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
-func (uuo *UserUpdateOne) SetNillableCreatedAt(t *time.Time) *UserUpdateOne {
-	if t != nil {
-		uuo.SetCreatedAt(*t)
+// SetNillableName sets the "name" field if the given value is not nil.
+func (uuo *UserUpdateOne) SetNillableName(s *string) *UserUpdateOne {
+	if s != nil {
+		uuo.SetName(*s)
 	}
+	return uuo
+}
+
+// SetText sets the "text" field.
+func (uuo *UserUpdateOne) SetText(s string) *UserUpdateOne {
+	uuo.mutation.SetText(s)
+	return uuo
+}
+
+// SetNillableText sets the "text" field if the given value is not nil.
+func (uuo *UserUpdateOne) SetNillableText(s *string) *UserUpdateOne {
+	if s != nil {
+		uuo.SetText(*s)
+	}
+	return uuo
+}
+
+// SetUpdated sets the "updated" field.
+func (uuo *UserUpdateOne) SetUpdated(t time.Time) *UserUpdateOne {
+	uuo.mutation.SetUpdated(t)
 	return uuo
 }
 
@@ -254,13 +260,20 @@ func (uuo *UserUpdateOne) Save(ctx context.Context) (*User, error) {
 		err  error
 		node *User
 	)
+	uuo.defaults()
 	if len(uuo.hooks) == 0 {
+		if err = uuo.check(); err != nil {
+			return nil, err
+		}
 		node, err = uuo.sqlSave(ctx)
 	} else {
 		var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 			mutation, ok := m.(*UserMutation)
 			if !ok {
 				return nil, fmt.Errorf("unexpected mutation type %T", m)
+			}
+			if err = uuo.check(); err != nil {
+				return nil, err
 			}
 			uuo.mutation = mutation
 			node, err = uuo.sqlSave(ctx)
@@ -302,6 +315,29 @@ func (uuo *UserUpdateOne) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (uuo *UserUpdateOne) defaults() {
+	if _, ok := uuo.mutation.Updated(); !ok {
+		v := user.UpdateDefaultUpdated()
+		uuo.mutation.SetUpdated(v)
+	}
+}
+
+// check runs all checks and user-defined validators on the builder.
+func (uuo *UserUpdateOne) check() error {
+	if v, ok := uuo.mutation.Name(); ok {
+		if err := user.NameValidator(v); err != nil {
+			return &ValidationError{Name: "name", err: fmt.Errorf("ent: validator failed for field \"name\": %w", err)}
+		}
+	}
+	if v, ok := uuo.mutation.Text(); ok {
+		if err := user.TextValidator(v); err != nil {
+			return &ValidationError{Name: "text", err: fmt.Errorf("ent: validator failed for field \"text\": %w", err)}
+		}
+	}
+	return nil
+}
+
 func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
 	_spec := &sqlgraph.UpdateSpec{
 		Node: &sqlgraph.NodeSpec{
@@ -337,20 +373,6 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 			}
 		}
 	}
-	if value, ok := uuo.mutation.Age(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeInt,
-			Value:  value,
-			Column: user.FieldAge,
-		})
-	}
-	if value, ok := uuo.mutation.AddedAge(); ok {
-		_spec.Fields.Add = append(_spec.Fields.Add, &sqlgraph.FieldSpec{
-			Type:   field.TypeInt,
-			Value:  value,
-			Column: user.FieldAge,
-		})
-	}
 	if value, ok := uuo.mutation.Name(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
@@ -358,18 +380,18 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 			Column: user.FieldName,
 		})
 	}
-	if value, ok := uuo.mutation.Username(); ok {
+	if value, ok := uuo.mutation.Text(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
 			Value:  value,
-			Column: user.FieldUsername,
+			Column: user.FieldText,
 		})
 	}
-	if value, ok := uuo.mutation.CreatedAt(); ok {
+	if value, ok := uuo.mutation.Updated(); ok {
 		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
 			Type:   field.TypeTime,
 			Value:  value,
-			Column: user.FieldCreatedAt,
+			Column: user.FieldUpdated,
 		})
 	}
 	_node = &User{config: uuo.config}

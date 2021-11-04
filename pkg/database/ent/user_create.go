@@ -20,34 +20,58 @@ type UserCreate struct {
 	hooks    []Hook
 }
 
-// SetAge sets the "age" field.
-func (uc *UserCreate) SetAge(i int) *UserCreate {
-	uc.mutation.SetAge(i)
-	return uc
-}
-
 // SetName sets the "name" field.
 func (uc *UserCreate) SetName(s string) *UserCreate {
 	uc.mutation.SetName(s)
 	return uc
 }
 
-// SetUsername sets the "username" field.
-func (uc *UserCreate) SetUsername(s string) *UserCreate {
-	uc.mutation.SetUsername(s)
+// SetNillableName sets the "name" field if the given value is not nil.
+func (uc *UserCreate) SetNillableName(s *string) *UserCreate {
+	if s != nil {
+		uc.SetName(*s)
+	}
 	return uc
 }
 
-// SetCreatedAt sets the "created_at" field.
-func (uc *UserCreate) SetCreatedAt(t time.Time) *UserCreate {
-	uc.mutation.SetCreatedAt(t)
+// SetText sets the "text" field.
+func (uc *UserCreate) SetText(s string) *UserCreate {
+	uc.mutation.SetText(s)
 	return uc
 }
 
-// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
-func (uc *UserCreate) SetNillableCreatedAt(t *time.Time) *UserCreate {
+// SetNillableText sets the "text" field if the given value is not nil.
+func (uc *UserCreate) SetNillableText(s *string) *UserCreate {
+	if s != nil {
+		uc.SetText(*s)
+	}
+	return uc
+}
+
+// SetCreated sets the "created" field.
+func (uc *UserCreate) SetCreated(t time.Time) *UserCreate {
+	uc.mutation.SetCreated(t)
+	return uc
+}
+
+// SetNillableCreated sets the "created" field if the given value is not nil.
+func (uc *UserCreate) SetNillableCreated(t *time.Time) *UserCreate {
 	if t != nil {
-		uc.SetCreatedAt(*t)
+		uc.SetCreated(*t)
+	}
+	return uc
+}
+
+// SetUpdated sets the "updated" field.
+func (uc *UserCreate) SetUpdated(t time.Time) *UserCreate {
+	uc.mutation.SetUpdated(t)
+	return uc
+}
+
+// SetNillableUpdated sets the "updated" field if the given value is not nil.
+func (uc *UserCreate) SetNillableUpdated(t *time.Time) *UserCreate {
+	if t != nil {
+		uc.SetUpdated(*t)
 	}
 	return uc
 }
@@ -123,25 +147,47 @@ func (uc *UserCreate) ExecX(ctx context.Context) {
 
 // defaults sets the default values of the builder before save.
 func (uc *UserCreate) defaults() {
-	if _, ok := uc.mutation.CreatedAt(); !ok {
-		v := user.DefaultCreatedAt()
-		uc.mutation.SetCreatedAt(v)
+	if _, ok := uc.mutation.Name(); !ok {
+		v := user.DefaultName
+		uc.mutation.SetName(v)
+	}
+	if _, ok := uc.mutation.Text(); !ok {
+		v := user.DefaultText
+		uc.mutation.SetText(v)
+	}
+	if _, ok := uc.mutation.Created(); !ok {
+		v := user.DefaultCreated()
+		uc.mutation.SetCreated(v)
+	}
+	if _, ok := uc.mutation.Updated(); !ok {
+		v := user.DefaultUpdated()
+		uc.mutation.SetUpdated(v)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
 func (uc *UserCreate) check() error {
-	if _, ok := uc.mutation.Age(); !ok {
-		return &ValidationError{Name: "age", err: errors.New(`ent: missing required field "age"`)}
-	}
 	if _, ok := uc.mutation.Name(); !ok {
 		return &ValidationError{Name: "name", err: errors.New(`ent: missing required field "name"`)}
 	}
-	if _, ok := uc.mutation.Username(); !ok {
-		return &ValidationError{Name: "username", err: errors.New(`ent: missing required field "username"`)}
+	if v, ok := uc.mutation.Name(); ok {
+		if err := user.NameValidator(v); err != nil {
+			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "name": %w`, err)}
+		}
 	}
-	if _, ok := uc.mutation.CreatedAt(); !ok {
-		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "created_at"`)}
+	if _, ok := uc.mutation.Text(); !ok {
+		return &ValidationError{Name: "text", err: errors.New(`ent: missing required field "text"`)}
+	}
+	if v, ok := uc.mutation.Text(); ok {
+		if err := user.TextValidator(v); err != nil {
+			return &ValidationError{Name: "text", err: fmt.Errorf(`ent: validator failed for field "text": %w`, err)}
+		}
+	}
+	if _, ok := uc.mutation.Created(); !ok {
+		return &ValidationError{Name: "created", err: errors.New(`ent: missing required field "created"`)}
+	}
+	if _, ok := uc.mutation.Updated(); !ok {
+		return &ValidationError{Name: "updated", err: errors.New(`ent: missing required field "updated"`)}
 	}
 	return nil
 }
@@ -170,14 +216,6 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 			},
 		}
 	)
-	if value, ok := uc.mutation.Age(); ok {
-		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
-			Type:   field.TypeInt,
-			Value:  value,
-			Column: user.FieldAge,
-		})
-		_node.Age = value
-	}
 	if value, ok := uc.mutation.Name(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
@@ -186,21 +224,29 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 		})
 		_node.Name = value
 	}
-	if value, ok := uc.mutation.Username(); ok {
+	if value, ok := uc.mutation.Text(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
 			Type:   field.TypeString,
 			Value:  value,
-			Column: user.FieldUsername,
+			Column: user.FieldText,
 		})
-		_node.Username = value
+		_node.Text = value
 	}
-	if value, ok := uc.mutation.CreatedAt(); ok {
+	if value, ok := uc.mutation.Created(); ok {
 		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
 			Type:   field.TypeTime,
 			Value:  value,
-			Column: user.FieldCreatedAt,
+			Column: user.FieldCreated,
 		})
-		_node.CreatedAt = value
+		_node.Created = value
+	}
+	if value, ok := uc.mutation.Updated(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Value:  value,
+			Column: user.FieldUpdated,
+		})
+		_node.Updated = value
 	}
 	return _node, _spec
 }

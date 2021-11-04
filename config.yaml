@@ -5,3 +5,4 @@ database:
   username: root
   dbname: trivy
   password: root1234
+  type: mysql
