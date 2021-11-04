@@ -6,7 +6,7 @@ import (
 	"github.com/bykof/gostradamus"
 	"github.com/spf13/viper"
 	"github.com/willie-lin/trivy-scan-images/configs"
-	"github.com/willie-lin/trivy-scan-images/internal/app/database"
+	"github.com/willie-lin/trivy-scan-images/pkg/database"
 	"go.uber.org/zap"
 
 	"github.com/labstack/echo/v4"
@@ -32,7 +32,6 @@ func main() {
 		AllowMethods: []string{echo.GET, echo.HEAD, echo.PUT, echo.PATCH, echo.POST, echo.DELETE},
 	}))
 
-
 	// 连接 数据库
 
 	client, err := database.NewClient()
@@ -55,27 +54,21 @@ func main() {
 
 	debugMode(err, client, ctx)
 
-
-
 	fmt.Println(viper.GetString("database.password"))
-
 
 	// Server
 	// Routes
 	e.GET("/", hello)
 
-
-
 	// Start server
 	e.Logger.Fatal(e.Start(":2022"))
 }
-
 
 // Handler
 func hello(c echo.Context) error {
 	return c.String(http.StatusOK, "Hello, World!")
 }
 
-func init()  {
+func init() {
 	configs.InitConfig()
 }

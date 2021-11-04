@@ -5,10 +5,9 @@ package ent
 import (
 	"context"
 	"fmt"
+	"github.com/willie-lin/trivy-scan-images/pkg/database/ent/predicate"
+	"github.com/willie-lin/trivy-scan-images/pkg/database/ent/user"
 	"sync"
-
-	"github.com/willie-lin/trivy-scan-images/internal/app/database/ent/predicate"
-	"github.com/willie-lin/trivy-scan-images/internal/app/database/ent/user"
 
 	"entgo.io/ent"
 )

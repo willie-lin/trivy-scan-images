@@ -5,11 +5,9 @@ package ent
 import (
 	"context"
 	"fmt"
+	"github.com/willie-lin/trivy-scan-images/pkg/database/ent/migrate"
+	"github.com/willie-lin/trivy-scan-images/pkg/database/ent/user"
 	"log"
-
-	"github.com/willie-lin/trivy-scan-images/internal/app/database/ent/migrate"
-
-	"github.com/willie-lin/trivy-scan-images/internal/app/database/ent/user"
 
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"

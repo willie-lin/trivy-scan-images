@@ -4,8 +4,8 @@ package enttest
 
 import (
 	"context"
+	ent2 "github.com/willie-lin/trivy-scan-images/pkg/database/ent"
 
-	"github.com/willie-lin/trivy-scan-images/internal/app/database/ent"
 	// required by schema hooks.
 	_ "github.com/willie-lin/trivy-scan-images/internal/app/database/ent/runtime"
 
@@ -24,13 +24,13 @@ type (
 	Option func(*options)
 
 	options struct {
-		opts        []ent.Option
+		opts        []ent2.Option
 		migrateOpts []schema.MigrateOption
 	}
 )
 
 // WithOptions forwards options to client creation.
-func WithOptions(opts ...ent.Option) Option {
+func WithOptions(opts ...ent2.Option) Option {
 	return func(o *options) {
 		o.opts = append(o.opts, opts...)
 	}
@@ -52,9 +52,9 @@ func newOptions(opts []Option) *options {
 }
 
 // Open calls ent.Open and auto-run migration.
-func Open(t TestingT, driverName, dataSourceName string, opts ...Option) *ent.Client {
+func Open(t TestingT, driverName, dataSourceName string, opts ...Option) *ent2.Client {
 	o := newOptions(opts)
-	c, err := ent.Open(driverName, dataSourceName, o.opts...)
+	c, err := ent2.Open(driverName, dataSourceName, o.opts...)
 	if err != nil {
 		t.Error(err)
 		t.FailNow()
@@ -67,9 +67,9 @@ func Open(t TestingT, driverName, dataSourceName string, opts ...Option) *ent.Cl
 }
 
 // NewClient calls ent.NewClient and auto-run migration.
-func NewClient(t TestingT, opts ...Option) *ent.Client {
+func NewClient(t TestingT, opts ...Option) *ent2.Client {
 	o := newOptions(opts)
-	c := ent.NewClient(o.opts...)
+	c := ent2.NewClient(o.opts...)
 	if err := c.Schema.Create(context.Background(), o.migrateOpts...); err != nil {
 		t.Error(err)
 		t.FailNow()

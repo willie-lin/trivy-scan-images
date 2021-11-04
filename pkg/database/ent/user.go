@@ -4,10 +4,10 @@ package ent
 
 import (
 	"fmt"
+	"github.com/willie-lin/trivy-scan-images/pkg/database/ent/user"
 	"strings"
 
 	"entgo.io/ent/dialect/sql"
-	"github.com/willie-lin/trivy-scan-images/internal/app/database/ent/user"
 )
 
 // User is the model entity for the User schema.

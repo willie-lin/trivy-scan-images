@@ -5,10 +5,10 @@ package ent
 import (
 	"errors"
 	"fmt"
+	"github.com/willie-lin/trivy-scan-images/pkg/database/ent/user"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/willie-lin/trivy-scan-images/internal/app/database/ent/user"
 )
 
 // ent aliases to avoid import conflicts in user's code.

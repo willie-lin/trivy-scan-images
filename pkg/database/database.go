@@ -18,19 +18,19 @@ type DatabaseCfg struct {
 	DbName   string `json:"dbname"`
 	Host     string `json:"host"`
 	Port     int    `json:"port"`
-	Type 	 string `json:"type"`
+	Type     string `json:"type"`
 }
 
-func NewClient() (*ent.Client, error)  {
+func NewClient() (*ent.Client, error) {
 
 	fmt.Println(viper.GetString("database.username"))
 	var dfg = &DatabaseCfg{
-		User: viper.GetString("database.username"),
+		User:     viper.GetString("database.username"),
 		Password: viper.GetString("database.password"),
 		DbName:   viper.GetString("database.dbname"),
-		Host: viper.GetString("database.host"),
-		Port: viper.GetInt("database.port"),
-		Type: "mysql",
+		Host:     viper.GetString("database.host"),
+		Port:     viper.GetInt("database.port"),
+		Type:     "mysql",
 	}
 
 	var client *ent.Client

@@ -4,7 +4,7 @@ package user
 
 import (
 	"entgo.io/ent/dialect/sql"
-	"github.com/willie-lin/trivy-scan-images/internal/app/database/ent/predicate"
+	"github.com/willie-lin/trivy-scan-images/pkg/database/ent/predicate"
 )
 
 // ID filters vertices based on their ID field.
